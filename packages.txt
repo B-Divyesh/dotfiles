@@ -1,0 +1,55 @@
+# Arch packages these dotfiles use (AUR ones marked). With an AUR helper:
+#   yay -S --needed $(grep -v '^#' packages.txt | cut -d' ' -f1)
+hyprland
+waybar-git # AUR
+mako
+fuzzel
+alacritty
+hyprpaper
+hypridle
+hyprlock
+hyprsunset
+hyprpicker
+hyprshutdown
+cliphist
+wl-clipboard
+wl-clip-persist
+grim
+slurp
+swappy
+wf-recorder
+brightnessctl
+playerctl
+polkit-gnome
+bluetui
+btop
+jq
+libnotify
+papirus-icon-theme
+adw-gtk-theme
+inter-font
+ttf-jetbrains-mono-nerd
+otf-font-awesome
+noto-fonts-emoji
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+bat
+neovim
+thunar
+imv
+pavucontrol
+networkmanager
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+gnome-keyring
+automatic-timezoned # AUR
+geoclue
+brave-bin # AUR
+pipewire
+pipewire-pulse
+wireplumber
+bluez
+bluez-utils
+xdg-user-dirs
+nwg-look

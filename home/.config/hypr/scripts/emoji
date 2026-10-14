@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# emoji — search emoji by name, copy the chosen one to the clipboard (Super + .)
+pkill -x fuzzel && exit 0
+sel=$(fuzzel --dmenu --prompt '󰞅  ' --placeholder 'Search emoji…' --width 44 --lines 12 \
+        --cache "${XDG_CACHE_HOME:-$HOME/.cache}/fuzzel-emoji" < "$(dirname "$0")/emoji.txt") || exit 0
+emoji=${sel%% *}
+printf '%s' "$emoji" | wl-copy
+notify-send -a Emoji -t 1200 "$emoji  copied" "Paste it with Ctrl + V"

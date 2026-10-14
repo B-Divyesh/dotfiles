@@ -1,0 +1,146 @@
+/* Waybar — Ember. Floating, translucent (Hyprland blurs it), compact.
+   Palette: see ~/.config/hypr/conf/theme.lua                               */
+@define-color base     rgba(26, 20, 27, 0.74);
+@define-color pill     rgba(51, 38, 44, 0.70);
+@define-color hover    rgba(74, 54, 56, 0.90);
+@define-color text     #f0e4d4;
+@define-color subtext  #bfa998;
+@define-color overlay  #7d6a66;
+@define-color amber    #e89b5e;
+@define-color ember    #c8643c;
+@define-color gold     #efcf9f;
+@define-color red      #e5534b;
+@define-color green    #a8c686;
+@define-color blue     #8cb3d9;
+@define-color dark     #1a141b;
+
+* {
+    font-family: "JetBrainsMono Nerd Font Propo", "Inter", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+window#waybar {
+    background: @base;
+    color: @text;
+    border-radius: 14px;
+    border: 1px solid rgba(232, 155, 94, 0.16);
+}
+
+tooltip {
+    background: rgba(26, 20, 27, 0.96);
+    border: 1px solid rgba(232, 155, 94, 0.5);
+    border-radius: 10px;
+}
+tooltip label { color: @text; padding: 2px 4px; }
+
+/* every module: same compact padding + soft hover */
+#custom-launcher, #submap, #window, #clock, #tray, #custom-recording, #custom-caffeine,
+#custom-nightlight, #custom-dnd, #cpu, #memory, #disk, #network, #bluetooth,
+#wireplumber, #backlight, #battery, #custom-power {
+    padding: 0 8px;
+    margin: 5px 0;
+    border-radius: 9px;
+    color: @text;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+#custom-launcher:hover, #clock:hover, #custom-caffeine:hover, #custom-nightlight:hover,
+#custom-dnd:hover, #cpu:hover, #memory:hover, #network:hover, #bluetooth:hover,
+#wireplumber:hover, #backlight:hover, #battery:hover, #custom-power:hover {
+    background: @hover;
+}
+
+/* ── left ─────────────────────────────────────────────── */
+#custom-launcher { color: @amber; font-size: 16px; padding: 0 11px 0 10px; margin-left: 3px; }
+
+#workspaces {
+    background: @pill;
+    border-radius: 10px;
+    margin: 5px 2px;
+    padding: 0 2px;
+}
+#workspaces button {
+    color: @overlay;
+    background: transparent;
+    padding: 0 6px;
+    margin: 3px 1px;
+    min-width: 12px;
+    border-radius: 7px;
+    transition: all 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+#workspaces button:not(.empty) { color: @text; }
+#workspaces button:hover       { background: @hover; color: @text; }
+#workspaces button.active {
+    color: @dark;
+    background: linear-gradient(135deg, @amber, @ember);
+    min-width: 24px;
+}
+#workspaces button.urgent { color: @dark; background: @red; }
+
+#submap { color: @dark; background: @gold; }
+#window { color: @subtext; font-weight: 500; }
+window#waybar.empty #window { color: @overlay; }
+
+/* ── centre ───────────────────────────────────────────── */
+#clock { font-weight: 700; padding: 0 12px; }
+
+/* ── right ────────────────────────────────────────────── */
+#tray { padding: 0 6px; }
+#tray > .needs-attention { background: rgba(229, 83, 75, 0.35); border-radius: 6px; }
+
+#custom-recording.active { color: @red; animation: blink 1s steps(2) infinite; }
+@keyframes blink { to { color: @text; } }
+
+#custom-caffeine.on,  #custom-nightlight.on { color: @gold; }
+#custom-caffeine.off, #custom-nightlight.off { color: @overlay; }
+#custom-dnd.dnd  { color: @red; }
+#custom-dnd.idle { color: @subtext; }
+
+#cpu, #memory, #disk { color: @subtext; }
+
+#network.disconnected, #network.linked { color: @red; }
+#bluetooth.disabled, #bluetooth.off    { color: @overlay; }
+#bluetooth.connected                   { color: @blue; }
+#wireplumber.muted                     { color: @overlay; }
+
+#battery.charging, #battery.plugged, #battery.full { color: @green; }
+#battery.warning:not(.charging)  { color: @gold; }
+#battery.critical:not(.charging) { color: @dark; background: @red; }
+
+#custom-power { color: @amber; padding: 0 11px 0 9px; margin-right: 3px; }
+#custom-power:hover { color: @red; }
+
+/* ── AirPods (LibrePods) ──────────────────────────────── */
+#custom-airpods {
+    padding: 0 9px;
+    margin: 5px 0;
+    border-radius: 9px;
+    color: @text;
+    transition: background-color 250ms ease, color 300ms ease, box-shadow 300ms ease;
+}
+#custom-airpods:hover                  { background: @hover; }
+#custom-airpods.disconnected           { color: @overlay; }
+#custom-airpods.nearby                 { color: @subtext; animation: airpods-breathe 2.8s ease-in-out infinite; }
+#custom-airpods.connecting             { color: @blue;    animation: airpods-breathe 0.8s ease-in-out infinite; }
+#custom-airpods.lid-open:not(.connected) { color: @blue;  animation: airpods-glow 1.6s ease-in-out infinite; }
+#custom-airpods.connected              { color: @text; background: rgba(140, 179, 217, 0.13); }
+/* fixed width while connected: the mode glyphs differ in width, and a
+   resizing pill shifts every module to its left on each mode change */
+#custom-airpods.connected              { min-width: 66px; }
+#custom-airpods.connected:hover        { background: @hover; }
+#custom-airpods.connected.anc          { box-shadow: inset 0 -2px 0 @amber; }
+#custom-airpods.connected.transparency { box-shadow: inset 0 -2px 0 @blue; }
+#custom-airpods.connected.adaptive     { box-shadow: inset 0 -2px 0 @gold; }
+#custom-airpods.charging               { color: @green; }
+#custom-airpods.low                    { color: @gold; }
+#custom-airpods.critical               { color: @dark; background: @red; animation: airpods-alert 1.4s ease-in-out infinite; }
+#custom-airpods.repair                 { color: @gold; background: rgba(239, 207, 159, 0.14); animation: airpods-breathe 1.6s ease-in-out infinite; }
+#custom-airpods.repair.failed          { color: @red; background: rgba(229, 83, 75, 0.14); animation: none; }
+@keyframes airpods-breathe { 0% { opacity: 0.45; } 50% { opacity: 1.0; } 100% { opacity: 0.45; } }
+@keyframes airpods-glow    { 0% { background: transparent; } 50% { background: rgba(140, 179, 217, 0.30); } 100% { background: transparent; } }
+@keyframes airpods-alert   { 0% { background: @red; } 50% { background: rgba(229, 83, 75, 0.45); } 100% { background: @red; } }

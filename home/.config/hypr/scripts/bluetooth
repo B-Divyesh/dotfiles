@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# bluetooth on|off|toggle|status — power the Bluetooth adapter (Super + Alt + B,
+# right-click the bar's Bluetooth icon). Also lifts an rfkill soft block.
+powered() { bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; }
+toast()   { notify-send -a osd -t 1500 -h string:x-canonical-private-synchronous:bluetooth "$1"; }
+on()  { rfkill unblock bluetooth 2>/dev/null; sleep 0.3
+        bluetoothctl power on >/dev/null && toast "󰂯   Bluetooth on" || toast "󰂲   Bluetooth failed to turn on"; }
+off() { bluetoothctl power off >/dev/null && toast "󰂲   Bluetooth off"; }
+case "${1:-toggle}" in
+    on)     on ;;
+    off)    off ;;
+    status) powered && echo on || echo off ;;
+    toggle) if powered; then off; else on; fi ;;
+    *) echo "usage: bluetooth on|off|toggle|status" >&2; exit 1 ;;
+esac

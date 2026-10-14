@@ -1,0 +1,14 @@
+[Unit]
+Description=LibrePods — AirPods integration (battery, ear detection, listening modes, case popup)
+After=pipewire.service wireplumber.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+ExecStart=%h/.local/bin/librepods --start-minimized
+Restart=on-failure
+RestartSec=3
+Environment=RUST_LOG=info,zbus=warn,winit=warn,wgpu_hal=warn,wgpu_core=warn,naga=warn,iced_winit=warn,cosmic_text=warn
+
+[Install]
+WantedBy=default.target

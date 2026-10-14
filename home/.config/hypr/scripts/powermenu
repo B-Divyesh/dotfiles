@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# powermenu — lock / suspend / log out / reboot / shut down (Super + Esc)
+# hyprshutdown closes every app politely first (browsers keep their tabs).
+pkill -x fuzzel && exit 0
+choice=$(printf '%s\n' \
+    "󰌾   Lock" "󰤄   Suspend" "󰍃   Log out" "󰜉   Reboot" "󰐥   Shut down" |
+    fuzzel --dmenu --prompt '' --placeholder 'Power' --lines 5 --width 20) || exit 0
+
+# close all apps gracefully but keep the session alive, so systemctl is still allowed
+close_apps() { command -v hyprshutdown >/dev/null && hyprshutdown -t "$1" --no-exit --no-fork; }
+
+case "$choice" in
+    *Lock)        loginctl lock-session ;;
+    *Suspend)     systemctl suspend ;;
+    *"Log out")   if command -v hyprshutdown >/dev/null; then hyprshutdown -t "Logging out…"
+                  else hyprctl dispatch 'hl.dsp.exit()'; fi ;;
+    *Reboot)      close_apps "Restarting…";     systemctl reboot ;;
+    *"Shut down") close_apps "Shutting down…";  systemctl poweroff ;;
+esac

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# dnd toggle|status — do-not-disturb for notifications (Super + Ctrl + N)
+# Critical notifications and the volume/brightness popups still show.
+case "$1" in
+    status)
+        if makoctl mode 2>/dev/null | grep -qx do-not-disturb
+        then echo '{"text":"󰂛","class":"dnd","tooltip":"Do not disturb — click to turn off"}'
+        else echo '{"text":"󰂚","class":"idle","tooltip":"Notifications on — click for do not disturb, right-click to dismiss all"}'
+        fi ;;
+    toggle|*)
+        makoctl mode -t do-not-disturb >/dev/null
+        if makoctl mode | grep -qx do-not-disturb
+        then notify-send -a osd -t 1200 -h string:x-canonical-private-synchronous:dnd "󰂛   Do not disturb"
+        else notify-send -a osd -t 1200 -h string:x-canonical-private-synchronous:dnd "󰂚   Notifications on"
+        fi
+        pkill -RTMIN+11 -x waybar ;;
+esac

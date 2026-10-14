@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# nightlight toggle|status — warm screen on/off (Super + F2, or click the bar icon)
+# The automatic schedule lives in ~/.config/hypr/hyprsunset.conf (20:00 → 07:00).
+state="${XDG_RUNTIME_DIR:-/tmp}/nightlight-on"
+
+case "$1" in
+    status)
+        [[ -e $state ]] && echo '{"text":"󰖔","class":"on","tooltip":"Night light on (4200K) — click to turn off"}' \
+                        || echo '{"text":"󰖨","class":"off","tooltip":"Night light off — click to turn on"}' ;;
+    toggle|*)
+        pgrep -x hyprsunset >/dev/null || { setsid -f hyprsunset >/dev/null 2>&1; sleep 0.4; }
+        if [[ -e $state ]]; then
+            hyprctl hyprsunset identity >/dev/null && rm -f "$state"
+            notify-send -a osd -t 1200 -h string:x-canonical-private-synchronous:nightlight "󰖨   Night light off"
+        else
+            hyprctl hyprsunset temperature 4200 >/dev/null && touch "$state"
+            notify-send -a osd -t 1200 -h string:x-canonical-private-synchronous:nightlight "󰖔   Night light on"
+        fi
+        pkill -RTMIN+10 -x waybar ;;
+esac

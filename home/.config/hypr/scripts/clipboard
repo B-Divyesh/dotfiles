@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# clipboard       — pick an entry from clipboard history (Super + V)
+# clipboard wipe  — forget the whole history (Super + Ctrl + V)
+if [[ $1 == wipe ]]; then
+    cliphist wipe && notify-send -a Clipboard -t 1500 "Clipboard history cleared"
+    exit 0
+fi
+pkill -x fuzzel && exit 0
+sel=$(cliphist list | fuzzel --dmenu --with-nth 2 --prompt '󰅌  ' \
+        --placeholder 'Search clipboard…' --width 60 --lines 12) || exit 0
+cliphist decode <<<"$sel" | wl-copy

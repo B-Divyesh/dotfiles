@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# osd — volume / mic / brightness keys with a small progress-bar popup (mako).
+# usage: osd volume up|down|mute   osd mic mute   osd brightness up|down
+# No extra daemon: the popup is a mako notification that replaces itself.
+
+show() {  # tag value text
+    notify-send -a osd -u low -t 1200 \
+        -h string:x-canonical-private-synchronous:"$1" -h int:value:"$2" "$3"
+}
+
+case "$1 $2" in
+    "volume up")       wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
+                       wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+ ;;
+    "volume down")     wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+    "volume mute")     wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+    "mic mute")        wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle ;;
+    "brightness up")   brightnessctl -q -e4 -n2 set 5%+ ;;
+    "brightness down") brightnessctl -q -e4 -n2 set 5%- ;;
+    *) echo "usage: osd volume up|down|mute | mic mute | brightness up|down" >&2; exit 1 ;;
+esac
+
+case "$1" in
+    volume)
+        out=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)          # "Volume: 0.45" or "Volume: 0.45 [MUTED]"
+        v=$(awk '{printf "%d", $2 * 100 + 0.5}' <<<"$out")
+        if [[ $out == *MUTED* ]]; then show volume 0 "󰝟   Muted"
+        elif (( v < 34 )); then show volume "$v" "󰕿   $v%"
+        elif (( v < 67 )); then show volume "$v" "󰖀   $v%"
+        else                    show volume "$v" "󰕾   $v%"
+        fi ;;
+    mic)
+        if [[ $(wpctl get-volume @DEFAULT_AUDIO_SOURCE@) == *MUTED* ]]
+        then show mic 0   "󰍭   Microphone off"
+        else show mic 100 "󰍬   Microphone on"
+        fi ;;
+    brightness)
+        b=$(brightnessctl -m | cut -d, -f4 | tr -d %)
+        show brightness "$b" "󰃠   $b%" ;;
+esac

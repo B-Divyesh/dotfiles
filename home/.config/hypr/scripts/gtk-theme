@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# gtk-theme — dark theme, icons, font and cursor for GTK apps (runs at login).
+# Change these once here, or use nwg-look for a GUI.
+theme=adw-gtk3-dark  icons=Papirus-Dark  font='Inter 11'  cursor=Adwaita  size=24
+
+gs() { gsettings set org.gnome.desktop.interface "$@" 2>/dev/null; }
+gs color-scheme prefer-dark
+gs gtk-theme    "$theme"
+gs icon-theme   "$icons"
+gs font-name    "$font"
+gs monospace-font-name 'JetBrainsMono Nerd Font 11'
+gs cursor-theme "$cursor"
+gs cursor-size  "$size"
+hyprctl setcursor "$cursor" "$size" >/dev/null 2>&1

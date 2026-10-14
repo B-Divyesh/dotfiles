@@ -1,0 +1,73 @@
+# Alacritty 0.17 — Ember
+[general]
+live_config_reload = true
+
+[window]
+padding = { x = 12, y = 10 }
+dynamic_padding = true
+decorations = "None"
+opacity = 0.95
+
+[font]
+normal = { family = "JetBrainsMono Nerd Font", style = "Regular" }
+bold   = { family = "JetBrainsMono Nerd Font", style = "Bold" }
+italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
+size = 11.0
+
+[scrolling]
+history = 20000
+
+[cursor]
+style = { shape = "Beam", blinking = "On" }
+unfocused_hollow = true
+
+[mouse]
+hide_when_typing = true
+
+[colors.primary]
+background = "#1a141b"
+foreground = "#f0e4d4"
+
+[colors.cursor]
+text   = "#1a141b"
+cursor = "#e89b5e"
+
+[colors.selection]
+text       = "CellForeground"
+background = "#4a3638"
+
+[colors.search.matches]
+foreground = "#1a141b"
+background = "#efcf9f"
+
+[colors.normal]
+black   = "#33262c"
+red     = "#e5534b"
+green   = "#a8c686"
+yellow  = "#e6b566"
+blue    = "#8cb3d9"
+magenta = "#c792b8"
+cyan    = "#7fc4c0"
+white   = "#d8c8b8"
+
+[colors.bright]
+black   = "#6a5654"
+red     = "#f07a6f"
+green   = "#bdd79e"
+yellow  = "#f0cb8a"
+blue    = "#a8c7e6"
+magenta = "#d9aacb"
+cyan    = "#9dd6d2"
+white   = "#f0e4d4"
+
+# Shift+Enter sends a literal newline (used by Claude Code)
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001b\r"
+
+# Ctrl+Shift+N opens a new window in the same directory
+[[keyboard.bindings]]
+key = "N"
+mods = "Control|Shift"
+action = "CreateNewWindow"

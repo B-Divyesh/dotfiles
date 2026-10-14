@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# record region|screen|status — toggle screen recording (wf-recorder).
+# Press the same shortcut again to stop. Saves to ~/Videos/Recordings.
+# Uses the Intel GPU encoder (VA-API) when available, else the CPU.
+
+dir="$(xdg-user-dir VIDEOS 2>/dev/null || echo "$HOME/Videos")/Recordings"
+
+if [[ $1 == status ]]; then          # for the waybar indicator
+    pgrep -x wf-recorder >/dev/null && echo '{"text":"󰑊 REC","class":"active","tooltip":"Recording — press the shortcut again to stop"}' || echo '{"text":""}'
+    exit 0
+fi
+
+if pgrep -x wf-recorder >/dev/null; then
+    pkill -INT -x wf-recorder
+    sleep 0.5
+    pkill -RTMIN+8 -x waybar
+    last=$(ls -t "$dir" 2>/dev/null | head -1)
+    notify-send -a Recorder "Recording saved" "${last:-$dir}"
+    exit 0
+fi
+
+mkdir -p "$dir"
+file="$dir/$(date +%Y-%m-%d_%H-%M-%S).mp4"
+case "$1" in
+    region)
+        geo=$(slurp -d -b '#1a141b88' -c '#e89b5eff' -s '#e89b5e22' -w 2) || exit 0
+        args=(-g "$geo") ;;
+    screen)
+        mon=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+        sink=$(pactl get-default-sink 2>/dev/null)            # record what you hear, not the mic
+        args=(${mon:+-o "$mon"} ${sink:+--audio="$sink.monitor"}) ;;
+    *) echo "usage: record region|screen|status" >&2; exit 1 ;;
+esac
+
+start() { rm -f "$file"; setsid -f wf-recorder "${args[@]}" "$@" -f "$file" >/dev/null 2>&1; sleep 0.8; pgrep -x wf-recorder >/dev/null; }
+if [[ -e /dev/dri/renderD128 ]] && start -c h264_vaapi -d /dev/dri/renderD128; then :
+elif start; then :
+else notify-send -a Recorder -u critical "Recording failed" "wf-recorder could not start"; exit 1
+fi
+pkill -RTMIN+8 -x waybar
+notify-send -a Recorder -t 1500 "Recording…" "Press the same shortcut again to stop"

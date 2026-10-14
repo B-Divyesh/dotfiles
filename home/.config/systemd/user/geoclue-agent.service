@@ -1,0 +1,11 @@
+[Unit]
+Description=GeoClue agent (lets geoclue serve apps allowed in /etc/geoclue — here: automatic-timezoned)
+Documentation=https://gitlab.freedesktop.org/geoclue/geoclue/-/wikis/home
+
+[Service]
+ExecStart=/usr/lib/geoclue-2.0/demos/agent
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

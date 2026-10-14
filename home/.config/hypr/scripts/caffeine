@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# caffeine toggle|status — stop the screen from dimming/locking/sleeping (Super + F4)
+# Works by pausing hypridle; toggling again restarts it.
+case "$1" in
+    status)
+        pgrep -x hypridle >/dev/null \
+            && echo '{"text":"󰾪","class":"off","tooltip":"Idle timers active — click to keep the screen awake"}' \
+            || echo '{"text":"󰅶","class":"on","tooltip":"Caffeine: screen stays awake — click to restore"}' ;;
+    toggle|*)
+        if pgrep -x hypridle >/dev/null; then
+            pkill -x hypridle
+            notify-send -a osd -t 1500 -h string:x-canonical-private-synchronous:caffeine "󰅶   Caffeine on — screen stays awake"
+        else
+            setsid -f hypridle >/dev/null 2>&1
+            notify-send -a osd -t 1500 -h string:x-canonical-private-synchronous:caffeine "󰾪   Caffeine off"
+        fi
+        sleep 0.2; pkill -RTMIN+9 -x waybar ;;
+esac

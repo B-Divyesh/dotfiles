@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# wallpaper — pick a wallpaper from ~/Pictures/Wallpapers (Super + Ctrl + W)
+# Changes it instantly and remembers it (also used by the lock screen).
+dir="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")/Wallpapers"
+link="$HOME/.config/hypr/wallpaper"
+pkill -x fuzzel && exit 0
+
+mapfile -t walls < <(find "$dir" -maxdepth 2 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) | sort)
+if (( ${#walls[@]} == 0 )); then
+    notify-send -a Wallpaper "No wallpapers found" "Put images in $dir"
+    exit 1
+fi
+
+name=$(printf '%s\n' "${walls[@]##*/}" | fuzzel --dmenu --prompt '󰸉  ' --placeholder 'Wallpaper…' --lines 10) || exit 0
+for w in "${walls[@]}"; do [[ ${w##*/} == "$name" ]] && file=$w && break; done
+[[ -n ${file:-} ]] || exit 1
+
+ln -sfn "$file" "$link"
+hyprctl hyprpaper wallpaper ",$file" >/dev/null
+notify-send -a Wallpaper -i "$file" -t 1500 "Wallpaper changed" "$name"

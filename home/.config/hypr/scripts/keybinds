@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# keybinds — searchable cheat sheet of every shortcut (Super + /)
+# The list is written by conf/keybinds.lua each time the config loads.
+pkill -x fuzzel && exit 0
+fuzzel --dmenu --prompt '  ' --placeholder 'Search shortcuts…' \
+    --width 78 --lines 20 --font 'JetBrainsMono Nerd Font:size=10.5' --no-sort \
+    < "${XDG_CACHE_HOME:-$HOME/.cache}/hypr-keybinds.txt" >/dev/null

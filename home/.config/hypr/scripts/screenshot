@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# screenshot screen|region|window|edit
+# Saves to ~/Pictures/Screenshots, copies to the clipboard, and shows a
+# notification with a preview — click it to annotate the shot in swappy.
+
+dir="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")/Screenshots"
+mkdir -p "$dir"
+file="$dir/$(date +%Y-%m-%d_%H-%M-%S).png"
+pick() { slurp -d -b '#1a141b88' -c '#e89b5eff' -s '#e89b5e22' -w 2; }
+
+case "$1" in
+    screen)
+        mon=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+        grim ${mon:+-o "$mon"} "$file" ;;
+    region)
+        geo=$(pick) || exit 0
+        grim -g "$geo" "$file" ;;
+    window)
+        geo=$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')
+        [[ $geo == *null* || -z $geo ]] && exit 1
+        grim -g "$geo" "$file" ;;
+    edit)
+        geo=$(pick) || exit 0
+        grim -g "$geo" - | swappy -f - -o "$file"
+        [[ -f $file ]] && wl-copy --type image/png < "$file"
+        exit 0 ;;
+    *) echo "usage: screenshot screen|region|window|edit" >&2; exit 1 ;;
+esac
+
+[[ -f $file ]] || exit 1
+wl-copy --type image/png < "$file"
+(
+    action=$(notify-send -a Screenshot -i "$file" -A default=Edit \
+        "Screenshot saved" "Copied to clipboard · click to annotate")
+    [[ $action == default ]] && swappy -f "$file" -o "$file"
+) >/dev/null 2>&1 &

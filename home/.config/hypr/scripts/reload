@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# reload — re-read every config and bring back anything that crashed (Super + Ctrl + R)
+hyprctl reload >/dev/null
+pkill -x waybar; setsid -f waybar >/dev/null 2>&1                   # bar: clean restart
+makoctl reload 2>/dev/null || setsid -f mako >/dev/null 2>&1         # notifications
+pgrep -x hyprpaper  >/dev/null || setsid -f hyprpaper  >/dev/null 2>&1
+pgrep -x hyprsunset >/dev/null || setsid -f hyprsunset >/dev/null 2>&1
+pgrep -f 'cliphist store' >/dev/null || {
+    setsid -f wl-paste --type text  --watch cliphist store
+    setsid -f wl-paste --type image --watch cliphist store
+}
+notify-send -a osd -t 1000 -h string:x-canonical-private-synchronous:reload "󰑓   Reloaded"

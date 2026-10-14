@@ -1,0 +1,194 @@
+// Waybar 0.15 — Ember bar. Every module is event-driven or polls slowly,
+// custom modules only run when poked with a signal (no background loops).
+// Clicks: left = main action, right = secondary, scroll = adjust.
+{
+    "layer": "top",
+    "position": "top",
+    "height": 32,
+    "margin-top": 6,
+    "margin-left": 10,
+    "margin-right": 10,
+    "spacing": 6,
+    "exclusive": true,
+    "reload_style_on_change": true,
+
+    "modules-left":   ["custom/launcher", "hyprland/workspaces", "hyprland/submap", "hyprland/window"],
+    "modules-center": ["clock"],
+    "modules-right":  ["tray", "custom/recording", "custom/caffeine", "custom/nightlight", "custom/dnd",
+                       "group/system", "network", "custom/airpods", "bluetooth", "wireplumber", "backlight", "battery", "custom/power"],
+
+    "custom/launcher": {
+        "format": "",
+        "tooltip-format": "Apps (Super + Space) · right-click: all shortcuts",
+        "on-click": "pkill -x fuzzel || fuzzel",
+        "on-click-right": "~/.config/hypr/scripts/keybinds"
+    },
+
+    "hyprland/workspaces": {
+        "format": "{id}",
+        "persistent-workspaces": { "*": 5 },
+        "on-scroll-up":   "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
+        "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
+    },
+
+    "hyprland/submap": {
+        "format": "󰩨 {}",
+        "tooltip": false
+    },
+
+    "hyprland/window": {
+        "format": "{title}",
+        "max-length": 48,
+        "separate-outputs": true,
+        "rewrite": { "^$": "Desktop" }
+    },
+
+    "clock": {
+        "format": "{:%a %d %b  %H:%M}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode": "month",
+            "weeks-pos": "right",
+            "on-scroll": 1,
+            "format": {
+                "months":   "<span color='#efcf9f'><b>{}</b></span>",
+                "weeks":    "<span color='#7d6a66'>W{}</span>",
+                "weekdays": "<span color='#e89b5e'><b>{}</b></span>",
+                "today":    "<span color='#1a141b' background='#e89b5e'><b> {} </b></span>"
+            }
+        },
+        "actions": { "on-click-right": "mode", "on-scroll-up": "shift_up", "on-scroll-down": "shift_down" }
+    },
+
+    "tray": { "icon-size": 16, "spacing": 8 },
+
+    "custom/recording": {
+        "exec": "~/.config/hypr/scripts/record status",
+        "return-type": "json",
+        "signal": 8,
+        "on-click": "~/.config/hypr/scripts/record region"
+    },
+    "custom/caffeine": {
+        "exec": "~/.config/hypr/scripts/caffeine status",
+        "return-type": "json",
+        "signal": 9,
+        "on-click": "~/.config/hypr/scripts/caffeine toggle"
+    },
+    "custom/nightlight": {
+        "exec": "~/.config/hypr/scripts/nightlight status",
+        "return-type": "json",
+        "signal": 10,
+        "on-click": "~/.config/hypr/scripts/nightlight toggle"
+    },
+    "custom/dnd": {
+        "exec": "~/.config/hypr/scripts/dnd status",
+        "return-type": "json",
+        "signal": 11,
+        "on-click": "~/.config/hypr/scripts/dnd toggle",
+        "on-click-right": "makoctl dismiss --all"
+    },
+
+    "group/system": {
+        "orientation": "inherit",
+        "drawer": { "transition-duration": 250, "children-class": "drawer-child", "transition-left-to-right": false },
+        "modules": ["cpu", "memory", "disk"]
+    },
+    "cpu": {
+        "interval": 5,
+        "format": "󰍛 {usage}%",
+        "tooltip": true,
+        "on-click": "alacritty --class floatterm -e btop"
+    },
+    "memory": {
+        "interval": 10,
+        "format": "󰾆 {percentage}%",
+        "tooltip-format": "{used:0.1f} / {total:0.1f} GiB used\nswap {swapUsed:0.1f} / {swapTotal:0.1f} GiB",
+        "on-click": "alacritty --class floatterm -e btop"
+    },
+    "disk": {
+        "interval": 300,
+        "path": "/",
+        "format": "󰋊 {percentage_used}%",
+        "tooltip-format": "{used} / {total} used on /"
+    },
+
+    "network": {
+        "interval": 10,
+        "format-wifi": "{icon}",
+        "format-ethernet": "󰈀",
+        "format-linked": "󰤫",
+        "format-disconnected": "󰤮",
+        "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+        "tooltip-format-wifi": "{essid}  ·  {signalStrength}%  ·  {frequency} GHz\n{ipaddr}",
+        "tooltip-format-ethernet": "{ifname}  ·  {ipaddr}",
+        "tooltip-format-disconnected": "Offline — click to connect",
+        "on-click": "alacritty --class floatterm -e nmtui connect",
+        "on-click-right": "alacritty --class floatterm -e nmtui"
+    },
+
+    // AirPods via LibrePods: event stream (no polling), Mac-style tooltip.
+    // left = AirPods menu (like macOS) · right = next listening mode · middle = connect/disconnect
+    // scroll = conversation awareness on/off
+    "custom/airpods": {
+        "exec": "~/.local/bin/librepods ctl waybar",
+        "return-type": "json",
+        "restart-interval": 5,
+        "escape": false,
+        "on-click": "~/.local/bin/librepods ctl menu",
+        "on-click-right": "~/.local/bin/librepods ctl mode next",
+        "on-click-middle": "~/.local/bin/librepods ctl toggle",
+        "on-scroll-up": "~/.local/bin/librepods ctl ca on",
+        "on-scroll-down": "~/.local/bin/librepods ctl ca off"
+    },
+
+    "bluetooth": {
+        "format": "󰂯",
+        "format-disabled": "󰂲",
+        "format-off": "󰂲",
+        "format-connected": "󰂱",
+        "tooltip-format": "{controller_alias}  ·  {status}\nright-click: turn Bluetooth on / off",
+        "tooltip-format-connected": "{device_enumerate}\n\nright-click: turn Bluetooth off",
+        "tooltip-format-enumerate-connected": "{device_alias}",
+        "tooltip-format-enumerate-connected-battery": "{device_alias}  ·  {device_battery_percentage}%",
+        "on-click": "alacritty --class floatterm -e bluetui",
+        "on-click-right": "~/.config/hypr/scripts/bluetooth toggle"
+    },
+
+    "wireplumber": {
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟",
+        "format-icons": ["󰕿", "󰖀", "󰕾"],
+        "scroll-step": 5,
+        "max-volume": 100,
+        "tooltip-format": "{node_name}",
+        "on-click": "pavucontrol",
+        "on-click-right": "~/.config/hypr/scripts/osd volume mute"
+    },
+
+    "backlight": {
+        "device": "intel_backlight",
+        "format": "{icon} {percent}%",
+        "format-icons": ["󰃞", "󰃟", "󰃠"],
+        "tooltip": false,
+        "on-scroll-up":   "~/.config/hypr/scripts/osd brightness up",
+        "on-scroll-down": "~/.config/hypr/scripts/osd brightness down"
+    },
+
+    "battery": {
+        "bat": "BAT0",
+        "interval": 30,
+        "states": { "warning": 25, "critical": 10 },
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󰚥 {capacity}%",
+        "format-full": "󰁹 Full",
+        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "tooltip-format": "{timeTo}  ·  {power:.1f} W"
+    },
+
+    "custom/power": {
+        "format": "󰐥",
+        "tooltip-format": "Power menu (Super + Esc)",
+        "on-click": "~/.config/hypr/scripts/powermenu"
+    }
+}
